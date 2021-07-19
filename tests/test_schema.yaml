@@ -1,0 +1,146 @@
+general:
+    # Python logging level for this application.
+    log_level:
+        oc_default: INFO
+        oc_schema:
+            type: string
+
+can_bus:
+    sensor_can:
+        channel:
+            oc_default: can0
+            oc_schema:
+                type: string
+
+        bus_type:
+            oc_default: socketcan
+            oc_schema:
+                type: string
+
+        oc_schema_id: can_bus_def
+    vehicle_can:
+        channel: "can1"
+        bus_type: "socketcan"
+        oc_schema: can_bus_def
+
+sensor_config:
+    sensors:
+        - id:
+            oc_default: 0
+            oc_schema:
+                type: integer
+          name:
+            oc_default: "Spoiler sensor"
+            oc_schema:
+                type: string
+          default_engage_limit:
+            oc_default: 70
+            oc_schema:
+                type: integer
+          default_spotted_limit:
+              oc_default: 120
+              oc_schema:
+                  type: integer
+        - id: 1
+          name: "Window base sensor"
+          default_engage_limit: 30
+          default_spotted_limit: 120
+        - id: 2
+          name: "Light-bar center sensor"
+          default_engage_limit: 30
+          default_spotted_limit: 120
+        - id: 3
+          name: "Light-bar left sensor"
+          default_engage_limit: 30
+          default_spotted_limit: 120
+        - id: 4
+          name: "Light-bar right sensor"
+          default_engage_limit: 30
+          default_spotted_limit: 120
+
+    sensor_configurations:
+        - name:
+            oc_default: "1 sensor (spoiler)"
+            oc_schema:
+                type: string
+          sensors:
+            oc_default: [0, ]
+            oc_schema:
+                type: list
+                schema:
+                    type: integer
+
+        - name: "1 sensor (window)"
+          sensors: [1, ]
+        - name: "1 sensor (light-bar center)"
+          sensors: [2, ]
+        - name: "2 sensor axial (spoiler, light-bar center)"
+          sensors: [0, 2]
+        - name: "2 sensor axial (window, light-bar-center)"
+          sensors: [1, 2]
+        - name: "2 sensor axial (spoiler, window)"
+          sensors: [0, 1]
+        - name: "2 sensor sides (light-bar sides)"
+          sensors: [3, 4]
+        - name: "3 sensor axial"
+          sensors: [0, 1, 2]
+        - name: "3 sensor sidewise (spoiler, light-bar sides)"
+          sensors: [0, 3, 4]
+        - name: "3 sensor sidewise (window, light-bar sides)"
+          sensors: [1, 3, 4]
+        - name: "3 sensor light-bar (light-bar center&sides)"
+          sensors: [2, 3, 4]
+        - name: "4 sensor sidewise"
+          sensors: [0, 1, 3, 4]
+        - name: "5 sensor (all)"
+          sensors: [0, 1, 2, 3, 4]
+
+    default_configuration: "3 sensor axial"
+    default_control_mode: "sensor"
+
+lops_config:
+    # AUTORESUME interval in seconds
+    autoresume_interval: 3.0
+    # AUTORESUME loop prevention interval in seconds
+    autoresume_loop_guard_interval: 3.0
+    # AUTORESUME clearence
+    autoresume_clearance_interval: 1.0
+    # CAN transmit only on opening
+    can_transmit_on_open_only: true
+    # Sensor reset/Blindness check interval in seconds. set to -1 to disable.
+    sensor_reset_interval: 30.0
+
+kick_sensor:
+    # Whether the Kick-sensor functionality is enabled in the system as a whole
+    # If se to false, it means the kick-sensor cannot be used, UI will not be
+    # displayed etc.
+    feature_enabled: true
+    # Whether the kick-sensor functionality is enabled
+    # (serves as default for UI)
+    state_enabled: true
+    # Preactivate on LOPS sensor activity -> Kick sensor will activate
+    # when LOPS sensors detect activity around liftgate.
+    # (If set to false, sensor is active all the time.)
+    preactivate_on_lops_activity: true
+    # Use only relevant sensors (sensors from a selected sensor configuration)
+    # as pre-activation input.
+    # (If set to false, the pre-activation will be done on all sensors.)
+    preactivate_on_relevant_sensors_only: false
+    # Kick-sensor will deactivate after this period, if no LOPS activity
+    # (or kick activity) is detected. [seconds]
+    preactivation_timeout: 5
+    # Kick sensor UART
+    uart:
+        device: "/dev/ttyS0"
+        baud_rate: 115200
+
+ui:
+    # Address to which the UI HTTP server should bind
+    addr: 0.0.0.0
+
+    # Port to on which the UI HTTP server should bind
+    port: 8888
+
+    # Master controller address in case this controller is part of a
+    # Mutaprops UI cluster.
+    master_addr: null
