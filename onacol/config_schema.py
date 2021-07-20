@@ -1,6 +1,13 @@
+"""
+.. module: onacol.config_schema
+   :synopsis: Classes and utilities for parsing and manipulation of the
+                configuration schema.
+
+.. moduleauthor:: Josef Nevrly <josef.nevrly@gmail.com>
+"""
+from typing import Any, List
 import copy
 
-from cerberus import Validator, schema_registry
 from cerberus.schema import SchemaRegistry
 
 from base import OnacolException
@@ -10,14 +17,21 @@ class SchemaException(OnacolException):
     pass
 
 
-def _has_subelement(source_element, subelement):
+def _has_subelement(source_element: Any, subelement: Any) -> bool:
+    """ Fail-safe check if sub-element is part of the source element.
+    """
     try:
-        return subelement in source_element
+        return (subelement in source_element)
     except TypeError:
         return False
 
 
-def _get_subelement(source_element, subelement, default=None):
+def _get_subelement(source_element: Any,
+                    subelement: Any,
+                    default: Any = None) -> Any:
+    """ Get sub-element from the source element. If not possible, gracefully
+        return default value.
+    """
     try:
         return source_element.get(subelement, default)
     except AttributeError:
@@ -31,34 +45,57 @@ class ConfigSchema:
     OC_DESC = "oc_desc"
     OC_DEFAULT = "oc_default"
 
+    # All yaml tokens used for onacol schema metadata.
+    # Note: OC_DESC is to collect descriptions. This feature is not used in the
+    # current API, but is kept there in case...
     OC_TOKENS = [OC_SCHEMA, OC_SCHEMA_ID, OC_DESC, OC_DEFAULT]
 
-    def __init__(self, schema_source):
+    def __init__(self, schema_source: dict):
+        """
+        :param schema_source: Configuration schema dictionary.
+        """
         self._schema_source = schema_source
         self._schema = None
+        self._flat_schema = {}  # Used for ENV_VAR list
         self._defaults = None
         self._descriptions = None
         self._validator = None
         self._schema_registry = SchemaRegistry()
-        self.load_schema(self._schema_source)
+        self.parse_schema(self._schema_source)
 
     @property
-    def schema(self):
+    def schema(self) -> dict:
+        """ Configuration schema.
+        """
         return self._schema
 
     @property
-    def schema_registry(self):
+    def flat_schema(self) -> dict:
+        """ Flattened configuration schema
+            (used for mapping environment variables).
+        """
+        return self._flat_schema
+
+    @property
+    def schema_registry(self) -> SchemaRegistry:
+        """ Cerberus SchemaRegistry object used for configuration validation.
+        """
         return self._schema_registry
 
     @property
-    def defaults(self):
+    def defaults(self) -> dict:
+        """ Configuration default values. """
         return self._defaults
 
-    @property
-    def descriptions(self):
-        return self._descriptions
+    # @property
+    # def descriptions(self) -> dict:
+    #     """ Config item descriptions (not used in current version.)"""
+    #     return self._descriptions
 
-    def _element_is_leaf(self, source_element):
+    def _element_is_leaf(self, source_element: Any) -> bool:
+        """ Check if current configuration element is a leaf in terms of
+            configuration tree traversal (i.e. it has no deeper levels).
+        """
         # Leaf element means it either just has a value, or it contains
         # dict that is purely onacol related metadata
         if isinstance(source_element, dict):
@@ -73,12 +110,32 @@ class ConfigSchema:
             # It's just a value
             return True
 
-    def load_schema(self, schema_source):
+    def parse_schema(self, schema_source: dict):
+        """ Parse default configuration including schema metadata.
+            During parsing, the schema for validation, default configuration
+            values and flattened schema for environment variable parsing is
+            processed.
+        """
+        self._flat_schema = {}
         self._schema, self._defaults, self._descriptions = \
-            self._process_schema_element(schema_source, top_level=True)
+            self._process_schema_element(schema_source, [], top_level=True)
         # self._validator = Validator(self._schema)
 
-    def _process_schema_element(self, schema_source, top_level=False):
+    def _process_schema_element(self, schema_source: Any,
+                                document_path: List[str],
+                                top_level: bool=False) -> tuple:
+        """ Recursively parse given configuration element.
+
+        :param schema_source:  Element of the configuration schema.
+        :param document_path:  List of keys marking element's path
+                                in the configuration hierarchy.
+        :param top_level:      Flag for identifying top-level element
+                                (root of the configuration tree).
+        :return:  Tuple (schema, defaults, description) with parsed elements of
+                    schema, default values and element descriptions.
+                    Element descriptions are not used in the current version
+                    of the library.
+        """
         schema = None
         default = None
         description = None
@@ -88,6 +145,11 @@ class ConfigSchema:
             else:
                 schema = None
 
+            # Register this path as possible env_var vector
+            if document_path is not None:
+                self._flat_schema[tuple(document_path)] = 'val'
+
+            # Process default value
             try:
                 default = schema_source[self.OC_DEFAULT]
             except (KeyError, TypeError):
@@ -101,6 +163,7 @@ class ConfigSchema:
         else:
             # It's just a branching to deeper dict or list
             if isinstance(schema_source, dict):
+
                 # Process dict
                 schema = {"type": "dict", "schema": {}}
                 default = {}
@@ -108,14 +171,29 @@ class ConfigSchema:
                 for k, v in schema_source.items():
                     if k in self.OC_TOKENS:
                         continue
+
+                    # We will be doing further branching
+                    if document_path is not None:
+                        d_path = document_path.copy()
+                        d_path.append(k)
+                    else:
+                        d_path = None
+
                     _schema, _default, _description = \
-                        self._process_schema_element(v)
+                        self._process_schema_element(
+                            v, d_path)
+
                     if _schema is not None:
                         schema["schema"][k] = _schema
                     default[k] = _default
                     description[k] = _description
 
             elif isinstance(schema_source, list):
+                # Lists cannot be expanded as env_var names, so just
+                # register this path as possible env_var vector
+                if document_path is not None:
+                    self._flat_schema[tuple(document_path)] = "list"
+
                 # Process list
                 schema = {"type": "list", "schema": {}}
                 default = []
@@ -123,7 +201,7 @@ class ConfigSchema:
                 i = 0
                 for item in schema_source:
                     _schema, _default, _description = \
-                        self._process_schema_element(item)
+                        self._process_schema_element(item, None)
                     if (i == 0) and (_schema is not None):
                         schema["schema"] = _schema
                     default.append(_default)
@@ -150,13 +228,19 @@ class ConfigSchema:
 
         return schema, default, description
 
-    def _export_schema_element(self, schema_element, config_data):
-        export = None
+    def _export_schema_element(self, schema_element: Any,
+                               config_data: Any) -> Any:
+        """ Recursively parse through the schema and current config to generate
+            YAML file that retains the format of the default config file
+            (including comments etc.) but contains the current config data.
+
+        :param schema_element:  Element of the configuration schema.
+        :param config_data:     Element of the current configuration, mathcing
+                                element of the configuration schema.
+        :return: Element of the final config file export.
+        """
         if self._element_is_leaf(schema_element):
-            if isinstance(schema_element, dict):
-                for token in self.OC_TOKENS:
-                    schema_element.pop(token, None)
-            schema_element = config_data
+            return config_data
         else:
             # It's just a branching to deeper dict or list
             if isinstance(schema_element, dict):
@@ -165,14 +249,16 @@ class ConfigSchema:
                         schema_element.pop(k)
                         continue
 
-                    self._export_schema_element(v, config_data[k])
+                    schema_element[k] = \
+                        self._export_schema_element(v, config_data[k])
 
             elif isinstance(schema_element, list):
 
                 trim_length = 0
                 for i, item in enumerate(schema_element):
                     try:
-                        self._export_schema_element(item, config_data[i])
+                        schema_element[i] = \
+                            self._export_schema_element(item, config_data[i])
                     except KeyError:
                         trim_length += 1
 
@@ -186,6 +272,8 @@ class ConfigSchema:
                     if len_schema < len_config:
                         for i in range(len_schema, len_config):
                             schema_element.append(config_data[i])
+
+            return schema_element
 
     def schema_to_yaml(self, schema_yaml, config):
         """ Strips original schema document of schema metadata, replacing them

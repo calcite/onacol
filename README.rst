@@ -33,5 +33,12 @@ Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
+
+Limitations
+-----------
+
+Variable-count structures must be contained in lists.
+Comments following oc_* tags are not kept.
+
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage

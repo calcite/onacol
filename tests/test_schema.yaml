@@ -5,14 +5,16 @@ general:
         oc_schema:
             type: string
 
+# Definitions for the CAN interface
 can_bus:
+    # CAN settings for the sensor network CAN
     sensor_can:
-        channel:
+        channel:            # Channel id on the CAN interface ('can0', 'can1)
             oc_default: can0
             oc_schema:
                 type: string
 
-        bus_type:
+        bus_type:           # Bus type (default: 'socketcan')
             oc_default: socketcan
             oc_schema:
                 type: string
@@ -24,20 +26,21 @@ can_bus:
         oc_schema: can_bus_def
 
 sensor_config:
+    # List of sensors
     sensors:
-        - id:
+        - id:                   # Sensor ID <0, 16>
             oc_default: 0
             oc_schema:
                 type: integer
-          name:
+          name:                  # Sensor description
             oc_default: "Spoiler sensor"
             oc_schema:
                 type: string
-          default_engage_limit:
+          default_engage_limit:  # Engaement limit [cm]
             oc_default: 70
             oc_schema:
                 type: integer
-          default_spotted_limit:
+          default_spotted_limit:  # Spotted limit [cm]
               oc_default: 120
               oc_schema:
                   type: integer

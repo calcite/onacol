@@ -3,7 +3,7 @@ import sys
 
 from cerberus import Validator
 
-from config_file import ConfigFileManager
+from config_file import ConfigFileHandler
 
 from base import OnacolException
 
@@ -15,7 +15,7 @@ class ConfigValidationError(OnacolException):
 class ConfigManager:
 
     def __init__(self, default_config_file, optional_files=None):
-        self._file_manager = ConfigFileManager(default_config_file, optional_files)
+        self._file_manager = ConfigFileHandler(default_config_file, optional_files)
         self._validator = None
         self._config = self._file_manager.configuration
 
@@ -48,5 +48,6 @@ if __name__ == "__main__":
     print(cm._file_manager.config_schema.schema)
     print(cm._file_manager.config_schema.defaults)
     print(cm._config)
+    print(cm._file_manager.config_schema.flat_schema)
     cm.validate()
     cm.generate_config_example(sys.stdout)
