@@ -1,0 +1,13 @@
+general:
+    log_level: DEBUG
+
+can_bus:
+    vehicle_can:
+        channel: "can2"
+
+sensor_config:
+    default_configuration: "1 sensor"
+
+control_config:
+    can_transmit: false
+    sensor_reset_interval: 10.0

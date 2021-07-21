@@ -10,7 +10,6 @@ python = "^3.6"
 Cerberus = "^1.3.4"
 "ruamel.yaml" = "^0.17.10"
 cascadict = "^0.8.4"
-attrs = "^21.2.0"
 
 [tool.poetry.dev-dependencies]
 

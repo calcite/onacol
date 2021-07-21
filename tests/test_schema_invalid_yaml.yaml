@@ -1,0 +1,7 @@
+general:
+    # Python logging level for this application.
+    log_level: Value here makes this YAML invalid.
+        oc_default: INFO
+        oc_schema:
+            type: string
+

@@ -10,7 +10,8 @@ import copy
 
 from cerberus.schema import SchemaRegistry
 
-from base import OnacolException
+from .base import OnacolException
+from .flat_schema import FlatValueType, FlatSchemaMetadata
 
 
 class SchemaException(OnacolException):
@@ -26,16 +27,16 @@ def _has_subelement(source_element: Any, subelement: Any) -> bool:
         return False
 
 
-def _get_subelement(source_element: Any,
-                    subelement: Any,
-                    default: Any = None) -> Any:
-    """ Get sub-element from the source element. If not possible, gracefully
-        return default value.
-    """
-    try:
-        return source_element.get(subelement, default)
-    except AttributeError:
-        return default
+# def _get_subelement(source_element: Any,
+#                     subelement: Any,
+#                     default: Any = None) -> Any:
+#     """ Get sub-element from the source element. If not possible, gracefully
+#         return default value.
+#     """
+#     try:
+#         return source_element.get(subelement, default)
+#     except AttributeError:
+#         return default
 
 
 class ConfigSchema:
@@ -147,7 +148,10 @@ class ConfigSchema:
 
             # Register this path as possible env_var vector
             if document_path is not None:
-                self._flat_schema[tuple(document_path)] = 'val'
+                self._flat_schema[tuple(document_path)] = FlatSchemaMetadata(
+                    FlatValueType.VALUE,
+                    schema.get("type") if schema else None
+                )
 
             # Process default value
             try:
@@ -192,7 +196,8 @@ class ConfigSchema:
                 # Lists cannot be expanded as env_var names, so just
                 # register this path as possible env_var vector
                 if document_path is not None:
-                    self._flat_schema[tuple(document_path)] = "list"
+                    self._flat_schema[tuple(document_path)] = \
+                        FlatSchemaMetadata(FlatValueType.LIST, None)
 
                 # Process list
                 schema = {"type": "list", "schema": {}}
@@ -243,14 +248,18 @@ class ConfigSchema:
             return config_data
         else:
             # It's just a branching to deeper dict or list
+            pop_list = []
             if isinstance(schema_element, dict):
                 for k, v in schema_element.items():
                     if k in self.OC_TOKENS:
-                        schema_element.pop(k)
+                        pop_list.append(k)
                         continue
 
                     schema_element[k] = \
                         self._export_schema_element(v, config_data[k])
+
+                for k in pop_list:
+                    schema_element.pop(k)
 
             elif isinstance(schema_element, list):
 
@@ -259,7 +268,7 @@ class ConfigSchema:
                     try:
                         schema_element[i] = \
                             self._export_schema_element(item, config_data[i])
-                    except KeyError:
+                    except IndexError:
                         trim_length += 1
 
                 # Trim the end or append extra config

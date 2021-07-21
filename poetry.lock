@@ -1,18 +1,4 @@
 [[package]]
-name = "attrs"
-version = "21.2.0"
-description = "Classes Without Boilerplate"
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[package.extras]
-dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "furo", "sphinx", "sphinx-notfound-page", "pre-commit"]
-docs = ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"]
-tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface"]
-tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
-
-[[package]]
 name = "cascadict"
 version = "0.8.4"
 description = "Cascading dictionary - CascaDict implements something like class inheritance, but on dictionary-key level. Ideal for representing cascading properties, e.g. configurations with default parameters etc."
@@ -54,13 +40,9 @@ python-versions = ">=3.5"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "b658e4bde5d57f1f8d54ff70d60efc2b73d285e57c56af2044d7ce322cce072c"
+content-hash = "528ee3bc9d6b9089442e79d70acdd936a28b119164b235c71e99bcdfb0f9435f"
 
 [metadata.files]
-attrs = [
-    {file = "attrs-21.2.0-py2.py3-none-any.whl", hash = "sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1"},
-    {file = "attrs-21.2.0.tar.gz", hash = "sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb"},
-]
 cascadict = [
     {file = "cascadict-0.8.4.zip", hash = "sha256:738944d7cfd14416d16ed260feeffa84035574392390c9942d54c5bdd19f8f30"},
 ]

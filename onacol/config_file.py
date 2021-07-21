@@ -6,14 +6,17 @@
 .. moduleauthor:: Josef Nevrly <josef.nevrly@gmail.com>
 """
 from typing import Union, List, TextIO
+import logging
 
 from ruamel.yaml import YAML, YAMLError
 from cascadict import CascaDict
 
-from base import OnacolException
-from config_schema import ConfigSchema
+from .base import OnacolException
+from .config_schema import ConfigSchema
 
 YAML_ACCESS = YAML()
+
+logger = logging.getLogger("onacol")
 
 
 class ConfigFileException(OnacolException):
@@ -24,6 +27,14 @@ class ConfigFileHandler:
 
     def __init__(self, default_file_path: str,
                  optional_file_paths: Union[List[str], None] = None):
+        """
+
+        :param default_file_path:   Path with default configuration file that
+                                    also defines the configuration schema.
+        :param optional_file_paths: List of additional/optional configuration
+                                    files that will be merged on top of the
+                                    default configuration file.
+        """
         self._default_file_path = default_file_path
         self._config = None
         self._schema = None
@@ -47,9 +58,17 @@ class ConfigFileHandler:
     def configuration(self) -> dict:
         return self._config
 
+    @configuration.setter
+    def configuration(self, value: dict) -> dict:
+        self._config = value
+
     @property
     def config_schema(self) -> Union[dict, None]:
         return self._schema if self.has_defaults else None
+
+    @property
+    def flat_schema(self) -> Union[dict, None]:
+        return self._schema.flat_schema if self.has_defaults else {}
 
     @property
     def has_defaults(self) -> bool:
@@ -62,8 +81,8 @@ class ConfigFileHandler:
                 return YAML_ACCESS.load(yaml_file)
         except YAMLError as ye:
             raise ConfigFileException(f"Cannot parse config file: {str(ye)}")
-        except FileNotFoundError as fnf:
-            raise ConfigFileException(f"Error reading file: {str(fnf)}")
+        # except FileNotFoundError as fnf:
+        #     raise ConfigFileException(f"Error reading file: {str(fnf)}")
 
     def load_files(self) -> None:
         """ Load default and optional config file and parse them into the
@@ -78,10 +97,21 @@ class ConfigFileHandler:
             self._config = CascaDict(self._schema.defaults)
 
         for opt_file in self._optional_file_paths:
-            if self._config is None:
-                self._config = CascaDict(self._load_yaml_file(opt_file))
-            else:
-                self._config.cascade(self._load_yaml_file(opt_file))
+            try:
+                self.load_additional_file(opt_file)
+            except FileNotFoundError:
+                logger.warning("Optional config file at %s not found.",
+                               opt_file)
+
+    def load_additional_file(self, file_path):
+        """ Load additional config file. If previous config is defined, it will
+            be merged on top of the previous config.
+        :param file_path:  Config file path.
+        """
+        if self._config is None:
+            self._config = CascaDict(self._load_yaml_file(file_path))
+        else:
+            self._config = self._config.cascade(self._load_yaml_file(file_path))
 
     def save_with_schema(self, config: dict, save_file: TextIO) -> None:
         """ Save the configuration to the YAML file, keeping the original

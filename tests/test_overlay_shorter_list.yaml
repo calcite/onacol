@@ -1,0 +1,11 @@
+sensor_config:
+    # List of sensors
+    sensors:
+        - id: 0
+          name: "The first sensor"
+          min_trigger_limit: 70
+          max_trigger_limit: 120
+        - id: 1
+          name: "The other sensor."
+          min_trigger_limit: 30
+          max_trigger_limit: 120

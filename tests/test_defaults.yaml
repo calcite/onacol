@@ -1,51 +1,24 @@
 general:
     # Python logging level for this application.
-    log_level:
-        oc_default: INFO
-        oc_schema:
-            type: string
+    log_level: INFO
 
 # Definitions for the CAN interface
 can_bus:
     # CAN settings for the sensor network CAN
     sensor_can:
-        channel:            # Channel id on the CAN interface ('can0', 'can1)
-            oc_default: can0
-            oc_schema:
-                type: string
-
-        bus_type:           # Bus type (default: 'socketcan')
-            oc_default: socketcan
-            oc_schema:
-                type: string
-
-        oc_schema_id: can_bus_def
-        oc_schema:
-            allow_unknown: false
+        channel: can0
+        bus_type: socketcan
     vehicle_can:
         channel: "can1"
         bus_type: "socketcan"
-        oc_schema: can_bus_def
 
 sensor_config:
     # List of sensors
     sensors:
-        - id:                   # Sensor ID <0, 16>
-            oc_default: 0
-            oc_schema:
-                type: integer
-          name:                  # Sensor description
-            oc_default: "The first sensor"
-            oc_schema:
-                type: string
-          min_trigger_limit:  # Minimal trigger limit [cm]
-            oc_default: 70
-            oc_schema:
-                type: integer
-          max_trigger_limit:  # Maximal trigger limit [cm]
-              oc_default: 120
-              oc_schema:
-                  type: integer
+        - id: 0
+          name: "The first sensor"
+          min_trigger_limit: 70
+          max_trigger_limit: 120
         - id: 1
           name: "The other sensor."
           min_trigger_limit: 30
@@ -56,17 +29,8 @@ sensor_config:
           max_trigger_limit: 110
 
     sensor_configurations:
-        - name:
-            oc_default: "1 sensor"
-            oc_schema:
-                type: string
-          sensors:
-            oc_default: [0, ]
-            oc_schema:
-                type: list
-                schema:
-                    type: integer
-
+        - name: "1 sensor"
+          sensors: [0, ]
         - name: "1 sensor (next)"
           sensors: [1, ]
         - name: "1 sensor (the other)"
@@ -93,10 +57,7 @@ control_config:
     # CAN transmit enabled
     can_transmit: true
     # Sensor reset interval in seconds. set to -1 to disable.
-    sensor_reset_interval:
-        oc_default: 30
-        oc_schema:
-            type: integer
+    sensor_reset_interval: 30.0
 
 bottom_sensor:
     # Whether bottom sensor featuer is enabled for operation
@@ -110,12 +71,7 @@ bottom_sensor:
     preactivate_on_relevant_sensors_only: false
     # Bottom sensor will deactivate after this period, if no control activity
     # [seconds]
-    preactivation_timeout:
-        oc_default: 5
-        oc_schema:
-            type: integer
-            max: 10
-            min: 0
+    preactivation_timeout: 5
 
     # Bottom sensor UART
     uart:

@@ -1,0 +1,15 @@
+can_bus:
+    # CAN settings for the sensor network CAN
+    sensor_can:
+        channel:            # Channel id on the CAN interface ('can0', 'can1)
+            oc_default: can0
+            oc_schema:
+                type: string
+
+        bus_type:           # Bus type (default: 'socketcan')
+            oc_default: socketcan
+            oc_schema:
+                type: string
+
+        oc_schema_id: can_bus_def
+        oc_schema: can_bus_def
