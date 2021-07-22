@@ -44,4 +44,5 @@ jobs:
         run: poetry run coverage run -m unittest
       - name: Upload coverage
         uses: codecov/codecov-action@v2
+        with:
             files: .coverage
