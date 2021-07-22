@@ -36,13 +36,11 @@ jobs:
         run: poetry run pip --version >/dev/null 2>&1 || rm -rf .venv
       - name: Install Dependencies
         run: poetry install
-#      - name: Test
-#        run: poetry run python -m unittest
       - name: MyPy
         run: poetry run mypy tests/test_onacol.py
       - name: Test & Coverage
         run: poetry run coverage run -m unittest
       - name: Upload coverage
-        uses: codecov/codecov-action@v2
-        with:
-            files: .coverage
+        env:
+            COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        run: poetry run coveralls
