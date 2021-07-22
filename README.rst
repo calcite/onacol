@@ -1,13 +1,13 @@
-======
-Onacol
-======
+====================================
+Oh No! Another COnfiguration Library
+====================================
 
 
 .. image:: https://img.shields.io/pypi/v/onacol.svg
         :target: https://pypi.python.org/pypi/onacol
 
-.. image:: https://img.shields.io/travis/JNevrly/onacol.svg
-        :target: https://travis-ci.com/JNevrly/onacol
+.. image:: https://img.shields.io/travis/calcite/onacol.svg
+        :target: https://travis-ci.com/calcite/onacol
 
 .. image:: https://readthedocs.org/projects/onacol/badge/?version=latest
         :target: https://onacol.readthedocs.io/en/latest/?version=latest
