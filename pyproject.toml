@@ -12,6 +12,8 @@ Cerberus = "^1.3.4"
 cascadict = "^0.8.4"
 
 [tool.poetry.dev-dependencies]
+coverage = "^5.5"
+mypy = "^0.910"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

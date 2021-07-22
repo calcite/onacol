@@ -17,6 +17,9 @@ Oh No! Another COnfiguration Library
         :target: https://coveralls.io/github/calcite/onacol?branch=main
         :alt: Test coverage Status
 
+.. image:: https://codecov.io/gh/calcite/onacol/branch/main/graph/badge.svg?token=M89VU96PMQ
+        :target: https://codecov.io/gh/calcite/onacol
+
 
 Oh No! Another Configuration Library
 
