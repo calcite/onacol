@@ -23,18 +23,14 @@ jobs:
         id: full-python-version
         run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
       - name: Install poetry
-        run: |
-          curl -fsS -o get-poetry.py https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py
-          python get-poetry.py -y
-          echo "::set-env name=PATH::$HOME/.poetry/bin:$PATH"
+        uses: Gr1N/setup-poetry@v7
       - name: Configure poetry
         run: poetry config virtualenvs.in-project true
       - name: Set up cache
-        uses: actions/cache@v1
-        id: cache
+        uses: actions/cache@v2
         with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+            path: ~/.cache/pypoetry/virtualenvs
+            key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
       - name: Ensure cache is healthy
         if: steps.cache.outputs.cache-hit == 'true'
         run: poetry run pip --version >/dev/null 2>&1 || rm -rf .venv
