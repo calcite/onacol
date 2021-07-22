@@ -13,7 +13,9 @@ Oh No! Another COnfiguration Library
         :target: https://onacol.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
 
-
+.. image:: https://coveralls.io/repos/github/calcite/onacol/badge.svg?branch=main
+        :target: https://coveralls.io/github/calcite/onacol?branch=main
+        :alt: Test coverage Status
 
 
 Oh No! Another Configuration Library

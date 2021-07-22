@@ -5,6 +5,7 @@
 
 import unittest
 import os
+from pathlib import Path
 
 from ruamel.yaml import YAML
 
@@ -14,16 +15,19 @@ from onacol.config_schema import SchemaException
 from onacol.flat_schema import UnknownConfigError, InvalidValueError
 
 
-DEFAULT_TEST_FILE = "test_yamls/test_schema.yaml"
-DEFAULT_DEFAULTS_FILE = "test_yamls/test_defaults.yaml"
-INVALID_YAML_DEFAULT_TEST_FILE = "test_yamls/test_schema_invalid_yaml.yaml"
-SELF_REFERENTIAL_DEFAULT_TEST_FILE = "test_yamls/test_schema_self_reference.yaml"
-TEST_OVERLAY_1 = "test_yamls/test_overlay_1.yaml"
-TEST_OVERLAY_LONGER_LIST = "test_yamls/test_overlay_longer_list.yaml"
-TEST_OVERLAY_SHORTER_LIST = "test_yamls/test_overlay_shorter_list.yaml"
-TEST_OVERLAY_INVALID_VALUE = "test_yamls/test_overlay_invalid_value.yaml"
-NONEXISTENT_OVERLAY = "test_yamls/nonexistent_overlay.yaml"
-TMP_FILE = "schema_dump.tmp"
+TESTS_DIR = Path(__file__).parent
+
+
+DEFAULT_TEST_FILE = TESTS_DIR / "test_yamls/test_schema.yaml"
+DEFAULT_DEFAULTS_FILE = TESTS_DIR / "test_yamls/test_defaults.yaml"
+INVALID_YAML_DEFAULT_TEST_FILE = TESTS_DIR / "test_yamls/test_schema_invalid_yaml.yaml"
+SELF_REFERENTIAL_DEFAULT_TEST_FILE = TESTS_DIR / "test_yamls/test_schema_self_reference.yaml"
+TEST_OVERLAY_1 = TESTS_DIR / "test_yamls/test_overlay_1.yaml"
+TEST_OVERLAY_LONGER_LIST = TESTS_DIR / "test_yamls/test_overlay_longer_list.yaml"
+TEST_OVERLAY_SHORTER_LIST = TESTS_DIR / "test_yamls/test_overlay_shorter_list.yaml"
+TEST_OVERLAY_INVALID_VALUE = TESTS_DIR / "test_yamls/test_overlay_invalid_value.yaml"
+NONEXISTENT_OVERLAY = TESTS_DIR / "test_yamls/nonexistent_overlay.yaml"
+TMP_FILE = TESTS_DIR / "schema_dump.tmp"
 
 YAML_ACCESS = YAML()
 
@@ -66,7 +70,7 @@ class TestConfigFileHandler(unittest.TestCase):
             fh = ConfigFileHandler(DEFAULT_TEST_FILE, optional_configs)
 
         self.assertEqual(lm.output,
-                         ["WARNING:onacol:Optional config file at test_yamls/nonexistent_overlay.yaml not found."])
+                         [f"WARNING:onacol:Optional config file at {TESTS_DIR}/test_yamls/nonexistent_overlay.yaml not found."])
         self.assertEqual(fh.optional_config_files, optional_configs)
 
     def test_save_with_schema(self):
@@ -85,7 +89,7 @@ class TestConfigFileHandler(unittest.TestCase):
     def test_save_with_schema_longer_list(self):
         fh = ConfigFileHandler(DEFAULT_TEST_FILE, [TEST_OVERLAY_LONGER_LIST])
 
-        print(fh.configuration["sensor_config"]["sensors"])
+        # print(fh.configuration["sensor_config"]["sensors"])
 
         with open(TMP_FILE, "w") as export_file:
             fh.save_with_schema(fh.configuration, export_file)
@@ -99,7 +103,7 @@ class TestConfigFileHandler(unittest.TestCase):
     def test_save_with_schema_shorter_list(self):
         fh = ConfigFileHandler(DEFAULT_TEST_FILE, [TEST_OVERLAY_SHORTER_LIST])
 
-        print(fh.configuration["sensor_config"]["sensors"])
+        # print(fh.configuration["sensor_config"]["sensors"])
 
         with open(TMP_FILE, "w") as export_file:
             fh.save_with_schema(fh.configuration, export_file)
