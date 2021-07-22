@@ -1,22 +1,24 @@
-name: Test
+name: Build
 
 on:
   push:
   pull_request:
     types: [opened, synchronize]
+  release:
+    types: [created]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
       fail-fast: false
 
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Get full python version
@@ -44,3 +46,22 @@ jobs:
         env:
             COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: poetry run coveralls
+
+  publish:
+    if: github.event_name == 'release' && github.event.action == 'created'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v2
+        - name: Set up Python
+          uses: actions/setup-python@v2
+          with:
+              python-version: "3.8"
+        - name: Install poetry
+          uses: Gr1N/setup-poetry@v7
+        - name: Configure poetry
+          run: poetry config virtualenvs.in-project true
+      -   name: Build and publish
+          env:
+              POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+          run: poetry publish --build
