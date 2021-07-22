@@ -1,13 +1,10 @@
 ====================================
 Oh No! Another COnfiguration Library
 ====================================
+[![Test](https://github.com/calcite/onacol/actions/workflows/test.yaml/badge.svg?branch=main)](https://github.com/calcite/onacol/actions/workflows/test.yaml)
 
-
-.. image:: https://img.shields.io/pypi/v/onacol.svg
-        :target: https://pypi.python.org/pypi/onacol
-
-.. image:: https://img.shields.io/travis/calcite/onacol.svg
-        :target: https://travis-ci.com/calcite/onacol
+.. image:: https://github.com/calcite/onacol/actions/workflows/test.yaml/badge.svg?branch=main
+        :target: https://github.com/calcite/onacol/actions/workflows/test.yaml
 
 .. image:: https://readthedocs.org/projects/onacol/badge/?version=latest
         :target: https://onacol.readthedocs.io/en/latest/?version=latest
