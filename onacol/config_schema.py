@@ -5,10 +5,10 @@
 
 .. moduleauthor:: Josef Nevrly <josef.nevrly@gmail.com>
 """
-from typing import Any, List
+from typing import Any, List, Union
 import copy
 
-from cerberus.schema import SchemaRegistry
+from cerberus.schema import SchemaRegistry  # type: ignore
 
 from .base import OnacolException
 from .flat_schema import FlatValueType, FlatSchemaMetadata
@@ -55,14 +55,17 @@ class ConfigSchema:
         """
         :param schema_source: Configuration schema dictionary.
         """
-        self._schema_source = schema_source
-        self._schema = None
-        self._flat_schema = {}  # Used for ENV_VAR list
-        self._defaults = None
-        self._descriptions = None
+        self._schema_source: dict = schema_source
+        self._schema: dict = {}
+        self._flat_schema: dict = {}  # Used for ENV_VAR list
+        self._defaults: dict = {}
+        self._descriptions: dict = {}
         self._validator = None
         self._schema_registry = SchemaRegistry()
         self.parse_schema(self._schema_source)
+
+    def __bool__(self):
+        return bool(self._schema)
 
     @property
     def schema(self) -> dict:
@@ -118,18 +121,23 @@ class ConfigSchema:
             processed.
         """
         self._flat_schema = {}
+
+        # No meaning parsing empty schema
+        if not schema_source:
+            return
+
         self._schema, self._defaults, self._descriptions = \
             self._process_schema_element(schema_source, [], top_level=True)
-        # self._validator = Validator(self._schema)
 
     def _process_schema_element(self, schema_source: Any,
-                                document_path: List[str],
+                                document_path: Union[List[str], None],
                                 top_level: bool=False) -> tuple:
         """ Recursively parse given configuration element.
 
         :param schema_source:  Element of the configuration schema.
         :param document_path:  List of keys marking element's path
-                                in the configuration hierarchy.
+                                in the configuration hierarchy or None for
+                                processing leaf elements.
         :param top_level:      Flag for identifying top-level element
                                 (root of the configuration tree).
         :return:  Tuple (schema, defaults, description) with parsed elements of
@@ -137,7 +145,7 @@ class ConfigSchema:
                     Element descriptions are not used in the current version
                     of the library.
         """
-        schema = None
+        schema = None  # type: ignore
         default = None
         description = None
         if self._element_is_leaf(schema_source):
@@ -181,7 +189,7 @@ class ConfigSchema:
                         d_path = document_path.copy()
                         d_path.append(k)
                     else:
-                        d_path = None
+                        d_path = None   # type: ignore
 
                     _schema, _default, _description = \
                         self._process_schema_element(
@@ -215,21 +223,21 @@ class ConfigSchema:
 
             if _has_subelement(schema_source, self.OC_SCHEMA):
                 if isinstance(schema_source[self.OC_SCHEMA], dict):
-                    schema.update(schema_source[self.OC_SCHEMA])
+                    schema.update(schema_source[self.OC_SCHEMA])  # type: ignore
                 else:
-                    schema["schema"] = schema_source[self.OC_SCHEMA]
+                    schema["schema"] = schema_source[self.OC_SCHEMA]  # type: ignore
 
             if _has_subelement(schema_source, self.OC_SCHEMA_ID):
-                if schema_source[self.OC_SCHEMA_ID] == schema["schema"]:
+                if schema_source[self.OC_SCHEMA_ID] == schema["schema"]:  # type: ignore
                     raise SchemaException(
-                        f"Schema self reference for {schema['schema']}")
-                if schema["schema"]:
+                        f"Schema self reference for {schema['schema']}")  # type: ignore
+                if schema["schema"]:  # type: ignore
                     self._schema_registry.add(schema_source[self.OC_SCHEMA_ID],
-                                              schema["schema"])
+                                              schema["schema"])  # type: ignore
 
         # For top-level element, remove the type & schema declaration
         if top_level:
-            schema = schema["schema"]
+            schema = schema["schema"]  # type: ignore
 
         return schema, default, description
 

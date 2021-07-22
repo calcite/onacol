@@ -1,10 +1,14 @@
-"""Main module."""
+"""
+.. module: onacol.onacol
+   :synopsis: Main module
+
+.. moduleauthor:: Josef Nevrly <josef.nevrly@gmail.com>
+"""
 import os
-import sys
 from typing import List, TextIO, Any
 
-from cerberus import Validator
-from cascadict import CascaDict
+from cerberus import Validator  # type: ignore
+from cascadict import CascaDict  # type: ignore
 
 from .config_file import ConfigFileHandler
 from .flat_schema import FlatSchemaHandler
@@ -36,7 +40,7 @@ class ConfigManager:
             self._file_handler.flat_schema, env_var_prefix=env_var_prefix)
         self._validator = None
 
-        if self._file_handler.config_schema is not None:
+        if self._file_handler.config_schema:
             self._validator = Validator(
                 self._file_handler.config_schema.schema,
                 schema_registry=self._file_handler.config_schema.schema_registry,

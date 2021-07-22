@@ -11,7 +11,7 @@ from collections import namedtuple
 import operator
 import json
 
-from cerberus import Validator
+from cerberus import Validator  # type: ignore
 
 from .base import OnacolException
 
