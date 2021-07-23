@@ -40,7 +40,6 @@ features relative to Onacol. You may find some of those suits your need better.
 
 .. list-table:: Popular configuration frameworks comparison
     :widths: 30 10 10 10 10 10 10
-    :align: left center center center center center center
     :header-rows: 1
 
     * - Framework
