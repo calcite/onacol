@@ -228,6 +228,32 @@ class TestConfigManager(unittest.TestCase):
         self.assertEqual(
             self._cm.config["ui"]["addr"], ADDR)
 
+    def test_cli_args_config(self):
+        PREAC_TIMEOUT = 8
+        CHANNEL = "can314"
+        ADDR = "127.0.0.1"
+        CLI_ARGS = ["--random-single-flag",
+                    "--bottom-sensor--preactivation-timeout",
+                    str(PREAC_TIMEOUT),
+                    "--two-arg-option",
+                    "2", "3",
+                    "--can-bus--sensor-can--channel",
+                    "can314",
+                    "--ui--addr",
+                    ADDR,
+                    "--final-trailing-flag"
+                    ]
+
+        self._cm.config_from_cli_args(CLI_ARGS)
+        self._cm.validate()
+        self.assertEqual(
+            self._cm.config["bottom_sensor"]["preactivation_timeout"],
+            PREAC_TIMEOUT)
+        self.assertEqual(
+            self._cm.config["can_bus"]["sensor_can"]["channel"], CHANNEL)
+        self.assertEqual(
+            self._cm.config["ui"]["addr"], ADDR)
+
     def test_cli_opt_bad_conversion(self):
         RESET_INTERVAL = 30.1
         CLI_OPTS = [

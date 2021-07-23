@@ -133,14 +133,33 @@ class ConfigManager:
                             env_var_name)]
         self.merge_env_vars(env_var_list)
 
+    def config_from_cli_args(self, cli_args: list) -> None:
+        """ Parse raw CLI arguments for valid configuration options,
+            merge those with valid names to the current configuration.
+
+        :param cli_args: List of all command line arguments and options.
+        """
+        cli_opt_list = []
+        for i, cli_option in enumerate(cli_args):
+            if cli_option.startswith("--"):
+                try:
+                    cli_opt_list.append((cli_option, cli_args[i+1]))
+                except IndexError:
+                    pass  # Skip if the last argument is a flag option
+        self.config_from_cli_opts(cli_opt_list)
+
     def config_from_cli_opts(self, cli_opt_list: list) -> None:
         """ Parse provided CLI optional argument list, merge those with
             valid names to the current configuration.
+
+        :param cli_opt_list: List of tuples (cli_option, option_value)
         """
-        parsed_cli_opt_list = [(cli_opt_name, value) for cli_opt_name, value
-                        in cli_opt_list if
-                        self._flat_schema_handler.is_valid_cli_opt(cli_opt_name)
-                               ]
+        parsed_cli_opt_list = []
+        for cli_opt_name, value in cli_opt_list:
+            cli_opt_name = cli_opt_name.lstrip("-")  # Cut the possible --
+            if self._flat_schema_handler.is_valid_cli_opt(cli_opt_name):
+                parsed_cli_opt_list.append((cli_opt_name, value))
+
         self.merge_cli_opts(parsed_cli_opt_list)
 
     def config_from_file(self, file_path: str) -> None:
