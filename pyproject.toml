@@ -19,6 +19,11 @@ coveralls = "^3.2.0"
 Sphinx = "^4.1.1"
 sphinx-rtd-theme = "^0.5.2"
 sphinxemoji = "^0.1.8"
+twine = "^3.4.2"
+
+[tool.poetry.urls]
+homepage = "https://github.com/calcite/onacol"
+documentation = "https://onacol.readthedocs.io/"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
