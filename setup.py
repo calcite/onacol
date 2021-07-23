@@ -39,7 +39,7 @@ setup(
     packages=find_packages(include=['onacol', 'onacol.*']),
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/JNevrly/onacol',
+    url='https://github.com/calcite/onacol',
     version='0.2.0',
     zip_safe=False,
 )
