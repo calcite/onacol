@@ -74,11 +74,15 @@ class ConfigFileHandler:
     def has_defaults(self) -> bool:
         return self._default_file_path is not None
 
-    @staticmethod
-    def _load_yaml_file(yaml_file_path: str) -> dict:
+    def _load_yaml_file(self, yaml_file_path: str,
+                        resolve_env_vars=True) -> dict:
         try:
             with open(yaml_file_path) as yaml_file:
-                return YAML_ACCESS.load(yaml_file)
+                yaml_string = yaml_file.read()
+                if resolve_env_vars:
+                    yaml_string = ConfigSchema.resolve_explicit_env_vars(
+                        yaml_string)
+                return YAML_ACCESS.load(yaml_string)
         except YAMLError as ye:
             raise ConfigFileException(f"Cannot parse config file: {str(ye)}")
         # except FileNotFoundError as fnf:
@@ -89,8 +93,10 @@ class ConfigFileHandler:
             configuration.
         """
         if self.has_defaults:
-            self._schema_yaml = self._load_yaml_file(self._default_file_path)
-            self._schema = ConfigSchema(self._schema_yaml)
+            self._schema_yaml = self._load_yaml_file(
+                self._default_file_path, resolve_env_vars=False)
+            tmp_schema = self._load_yaml_file(self._default_file_path)
+            self._schema = ConfigSchema(tmp_schema)
             self._config = CascaDict(self._schema.defaults)
         else:
             self._config = CascaDict({})

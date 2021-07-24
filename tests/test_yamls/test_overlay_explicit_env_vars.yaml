@@ -1,0 +1,13 @@
+general:
+    log_level: DEBUG
+
+can_bus:
+    vehicle_can:
+        channel: ${oc_env:NONEXISTENT_ENV_VAR}
+
+sensor_config:
+    default_configuration: "1 sensor"
+
+control_config:
+    can_transmit: ${oc_env:INVALID-ENV-VAR}
+    sensor_reset_interval: ${oc_env:EXISTING_ENV_VAR}

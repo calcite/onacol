@@ -7,12 +7,16 @@
 """
 from typing import Any, List, Union
 import copy
+import re
+import os
+import logging
 
 from cerberus.schema import SchemaRegistry  # type: ignore
 
 from .base import OnacolException
 from .flat_schema import FlatValueType, FlatSchemaMetadata
 
+logger = logging.getLogger("onacol")
 
 class SchemaException(OnacolException):
     pass
@@ -50,6 +54,8 @@ class ConfigSchema:
     # Note: OC_DESC is to collect descriptions. This feature is not used in the
     # current API, but is kept there in case...
     OC_TOKENS = [OC_SCHEMA, OC_SCHEMA_ID, OC_DESC, OC_DEFAULT]
+    OC_ENV_REGEX = re.compile(
+        r"\$\{\s*oc_env\s*:\s*(?P<var_name>[a-zA-Z_]+[a-zA-Z0-9_]*)\s*}")
 
     def __init__(self, schema_source: dict):
         """
@@ -66,6 +72,26 @@ class ConfigSchema:
 
     def __bool__(self):
         return bool(self._schema)
+
+    @classmethod
+    def _substitute_explicit_env_var(cls, env_var_match):
+        env_var_name = env_var_match.group("var_name")
+        try:
+            return os.environ[env_var_name]
+        except KeyError:
+            logger.warning(
+                f"Explicit environment variable not found: {env_var_name}")
+            return ""
+
+    @classmethod
+    def resolve_explicit_env_vars(cls, yaml_string: str) -> str:
+        """ Resolve explicit environment variables in the YAML string.
+
+        :param yaml_string:  YAML string with explicit env_var references.
+        :return: YAML string with resolved env_var references.
+        """
+        return cls.OC_ENV_REGEX.sub(cls._substitute_explicit_env_var,
+                                    yaml_string)
 
     @property
     def schema(self) -> dict:

@@ -23,7 +23,7 @@ Onacol is a low-opinionated configuration management library with following
 features:
 
 * YAML (=structured and hierarchical) configuration file support
-* Environment variables support
+* Environment variables support (explicit and implicit)
 * CLI arguments support
 * Configuration merging/overwriting/layering
 * Parameter validation (via Cerberus_)

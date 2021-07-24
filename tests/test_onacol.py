@@ -26,6 +26,7 @@ TEST_OVERLAY_1 = TESTS_DIR / "test_yamls/test_overlay_1.yaml"
 TEST_OVERLAY_LONGER_LIST = TESTS_DIR / "test_yamls/test_overlay_longer_list.yaml"
 TEST_OVERLAY_SHORTER_LIST = TESTS_DIR / "test_yamls/test_overlay_shorter_list.yaml"
 TEST_OVERLAY_INVALID_VALUE = TESTS_DIR / "test_yamls/test_overlay_invalid_value.yaml"
+TEST_OVERLAY_EXPLICIT_ENV_VAR = TESTS_DIR / "test_yamls/test_overlay_explicit_env_vars.yaml"
 NONEXISTENT_OVERLAY = TESTS_DIR / "test_yamls/nonexistent_overlay.yaml"
 TMP_FILE = TESTS_DIR / "schema_dump.tmp"
 
@@ -169,7 +170,7 @@ class TestConfigManager(unittest.TestCase):
         with open(TMP_FILE, "w") as dump_file:
             self._cm.export_current_config(dump_file)
 
-    def test_env_var_config(self):
+    def test_implicit_env_var_config(self):
         # Add some env var
         PREAC_TIMEOUT = 6
         os.environ["ONAC_BOTTOM_SENSOR__PREACTIVATION_TIMEOUT"] = str(PREAC_TIMEOUT)
@@ -179,13 +180,13 @@ class TestConfigManager(unittest.TestCase):
             self._cm.config["bottom_sensor"]["preactivation_timeout"],
             PREAC_TIMEOUT)
 
-    def test_unknown_env_var(self):
+    def test_unknown_implicit_env_var(self):
         os.environ["ONAC_BOTTOM_SENSOR__SOMETHING_STUPID"] = "foobar"
         with self.assertRaises(UnknownConfigError):
             self._cm.config_from_env_vars()
         del os.environ["ONAC_BOTTOM_SENSOR__SOMETHING_STUPID"]
 
-    def test_env_var_json(self):
+    def test_implicit_env_var_json(self):
         os.environ["ONAC_SENSOR_CONFIG__SENSORS"] = \
             '[{"id": 2, "name": "json_sensor", "min_trigger_limit": 65, "max_trigger_limit": 200}]'
         self._cm.config_from_env_vars()
@@ -195,19 +196,40 @@ class TestConfigManager(unittest.TestCase):
             "json_sensor")
         del os.environ["ONAC_SENSOR_CONFIG__SENSORS"]
 
-    def test_env_var_json_invalid(self):
+    def test_implicit_env_var_json_invalid(self):
         os.environ["ONAC_SENSOR_CONFIG__SENSORS"] = \
             '[{"id": 2, "name": "json_sensor", "min_trigger_limit": 65, "max_trigger_limit": 200]'
         with self.assertRaises(InvalidValueError):
             self._cm.config_from_env_vars()
         del os.environ["ONAC_SENSOR_CONFIG__SENSORS"]
 
-    def test_env_var_json_non_list(self):
+    def test_implicit_env_var_json_non_list(self):
         os.environ["ONAC_SENSOR_CONFIG__SENSORS"] = \
             '{"id": 2, "name": "json_sensor", "min_trigger_limit": 65, "max_trigger_limit": 200}'
         with self.assertRaises(InvalidValueError):
             self._cm.config_from_env_vars()
         del os.environ["ONAC_SENSOR_CONFIG__SENSORS"]
+
+    def test_explicit_env_var(self):
+        NEW_VAL = 10
+        os.environ["EXISTING_ENV_VAR"] = str(NEW_VAL)
+        with self.assertLogs("onacol", level="WARNING") as lm:
+            self._cm.config_from_file(TEST_OVERLAY_EXPLICIT_ENV_VAR)
+        self.assertEqual(
+            self._cm.config["control_config"]["sensor_reset_interval"],
+            NEW_VAL
+        )
+        self.assertEqual(lm.output,
+                         [f"WARNING:onacol:Explicit environment variable not found: NONEXISTENT_ENV_VAR"])
+        self.assertEqual(
+            self._cm.config["can_bus"]["vehicle_can"]["channel"], None
+        )
+        self.assertEqual(
+            self._cm.config["control_config"]["can_transmit"],
+            "${oc_env:INVALID-ENV-VAR}"
+        )
+
+        del os.environ["EXISTING_ENV_VAR"]
 
     def test_cli_opt_config(self):
         PREAC_TIMEOUT = 8
