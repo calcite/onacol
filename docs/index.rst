@@ -6,8 +6,6 @@ Welcome to Onacol's documentation!
    :caption: Contents:
 
    readme
-   installation
-   usage
    modules
    contributing
    history

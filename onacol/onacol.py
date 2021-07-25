@@ -58,9 +58,9 @@ class ConfigManager:
 
     def validate(self):
         """ Validate the configuration.
+
         :return: None.
-        :raises: :class:`onacol.ConfigValidationError` if configuration
-                 is not valid.
+        :raises: :class:`onacol.ConfigValidationError` if configuration is not valid.
         """
         if self._validator is None:
             return

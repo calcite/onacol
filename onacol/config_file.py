@@ -112,6 +112,7 @@ class ConfigFileHandler:
     def load_additional_file(self, file_path):
         """ Load additional config file. If previous config is defined, it will
             be merged on top of the previous config.
+
         :param file_path:  Config file path.
         """
         if self._config:
