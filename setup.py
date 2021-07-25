@@ -40,6 +40,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/calcite/onacol',
-    version='0.2.3',
+    version='0.3.0',
     zip_safe=False,
 )
