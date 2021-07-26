@@ -92,6 +92,13 @@ your need better.
       - ❓
       - ✔️
       - ✖️
+    * - `Python Decouple`_
+      - ✖️
+      - ✖️
+      - ✔️
+      - ✔️
+      - ✖️
+      - ✖️
     * - OmegaConf_
       - ✔️
       - ✔️
@@ -106,12 +113,12 @@ your need better.
       - ✔️
       - ✔️
       - ✖️
-    * - `Python Decouple`_
-      - ✖️
-      - ✖️
+    * - Everett_
       - ✔️
       - ✔️
-      - ✖️
+      - ✔️
+      - ❓
+      - ✔️
       - ✖️
     * - parse_it_
       - ✔️
@@ -222,7 +229,7 @@ recognized by Onacol:
 
 * ``oc_schema``: Cerberus_ validator/schema definitions.
 * ``oc_default``: Default value (if metadata are attached to the YAML element, it
-  can no longer bear the value directly.
+  can no longer bear the value directly).
 * ``oc_schema_id``: Definition of a schema reference (see
   `Repeating schema elements`_)
 
@@ -637,3 +644,4 @@ Full docs at https://onacol.readthedocs.io.
 .. _Click: https://click.palletsprojects.com
 .. _CascaDict: https://github.com/JNevrly/cascadict
 .. _`Ruamel YAML`: https://yaml.readthedocs.io/en/latest/
+.. _Everett: https://github.com/willkg/everett
