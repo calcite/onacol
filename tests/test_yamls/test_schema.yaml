@@ -103,7 +103,10 @@ bottom_sensor:
     feature_enabled: true
     # Whether the bottom sensor functionality is enabled
     # (serves as default for UI)
-    state_enabled: true
+    state_enabled:
+        oc_default: true
+        oc_schema:
+            type: boolean
     # (If set to false, sensor is active all the time.)
     preactivate_on_conrtol_activity: true
     # (If set to false, the pre-activation will be done on all sensors.)

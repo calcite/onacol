@@ -180,6 +180,33 @@ class TestConfigManager(unittest.TestCase):
             self._cm.config["bottom_sensor"]["preactivation_timeout"],
             PREAC_TIMEOUT)
 
+    def test_implicit_bool_env_var_config(self):
+        # Add some env var
+        BOOL_TEST = False
+        os.environ["ONAC_BOTTOM_SENSOR__FEATURE_ENABLED"] = str(BOOL_TEST)
+        self._cm.config_from_env_vars()
+        self._cm.validate()
+        self.assertEqual(
+            self._cm.config["bottom_sensor"]["feature_enabled"], BOOL_TEST)
+
+    def test_implicit_env_var_config_json_injection_prevention(self):
+        # Add some env var
+        TEST_VAL = '{"something": 1, "else": 2}'
+        os.environ["ONAC_BOTTOM_SENSOR__FEATURE_ENABLED"] = TEST_VAL
+        self._cm.config_from_env_vars()
+        self._cm.validate()
+        self.assertEqual(
+            self._cm.config["bottom_sensor"]["feature_enabled"], TEST_VAL)
+
+    def test_implicit_bool_with_schema_env_var_config(self):
+        # Add some env var
+        BOOL_TEST = False
+        os.environ["ONAC_BOTTOM_SENSOR__STATE_ENABLED"] = str(BOOL_TEST)
+        self._cm.config_from_env_vars()
+        self._cm.validate()
+        self.assertEqual(
+            self._cm.config["bottom_sensor"]["state_enabled"], BOOL_TEST)
+
     def test_unknown_implicit_env_var(self):
         os.environ["ONAC_BOTTOM_SENSOR__SOMETHING_STUPID"] = "foobar"
         with self.assertRaises(UnknownConfigError):

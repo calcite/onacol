@@ -448,8 +448,14 @@ configuration parameter ``sensor_reset_interval``, it was automatically
 converted to integer. Although schema is not mandatory, it's always useful for
 parameters that can be configured via environment variables.
 
+When schema is not defined, Onacol tries to apply JSON conversion rules to
+the value of the environment variable. That helps in most cases, but can
+cause problems if you pass value such as "1.2". In that case, it will be
+automatically converted to float. If you want to receive it as string, you
+must define schema for that particular config.
+
 It is also possible to overwrite entire lists with environment variables.
-To do that, use JSON as format::
+To do that, use again JSON as format::
 
     $ export OCTEST_SENSORS__CONNECTED_UNITS='[{"id": 2, "name": "JSON sensor", "min_trigger_limit": 10, "max_trigger_limit": 90}]'
     $ python main.py --config my_config.yaml
@@ -492,6 +498,9 @@ configuration sources. Example::
     Sensors:
              Basic sensor [0]        Trigger limits: (30, 120)
              Additional sensor [1]   Trigger limits: (40, 100)
+
+In explicitly used environment variables, where schema is not defined, then
+of course YAML default conversion rules are used.
 
 Configuration using command-line options
 ++++++++++++++++++++++++++++++++++++++++

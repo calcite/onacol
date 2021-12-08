@@ -72,6 +72,18 @@ class FlatSchemaHandler:
             raise UnknownConfigError(
                 f"No configuration exist for {path}")
 
+    def _single_value_conversion(self, str_value):
+        try:
+            value = json.loads(str_value.lower())
+        except json.JSONDecodeError as e:
+            return str_value
+
+        # This is to avoid unexpected JSON injection
+        if isinstance(value, (list, dict)):
+            return str_value
+
+        return value
+
     def _set_mapped_value(self, config, mapping, path, value):
         mapped_path = self._get_mapped_path(mapping, path)
         metadata = self._flat_schema[mapped_path]
@@ -100,14 +112,25 @@ class FlatSchemaHandler:
                         # into an additional tuple...
                         val_type = val_type[0]
                     try:
-                        converted_value = val_type(value)
+                        # List of exceptions here
+                        if val_type == bool:
+                            # One more conversion to bool to prevent
+                            # JSON injection
+                            converted_value = bool(json.loads(value.lower()))
+                        # End of exceptions
+                        else:
+                            converted_value = val_type(value)
                         break
                     except ValueError:
                         pass
                 else:
-                    converted_value = value
+                    converted_value = self._single_value_conversion(value)
             else:
-                converted_value = value
+                # For values
+                if isinstance(value, str):
+                    converted_value = self._single_value_conversion(value)
+                else:
+                    converted_value = value
 
         self._get_config_value(config, mapped_path[:-1])[mapped_path[-1]] = \
             converted_value
