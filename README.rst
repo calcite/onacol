@@ -16,6 +16,10 @@ ONACOL (Oh No! Another COnfiguration Library)
         :target: https://coveralls.io/github/calcite/onacol?branch=main
         :alt: Test coverage Status
 
+.. image:: https://img.shields.io/lgtm/grade/python/g/calcite/onacol.svg?logo=lgtm&logoWidth=18
+        :target: https://lgtm.com/projects/g/calcite/onacol/context:python
+        :alt: Language grade: Python
+
 .. image:: https://img.shields.io/pypi/pyversions/onacol
         :alt: PyPI - Python Version
 

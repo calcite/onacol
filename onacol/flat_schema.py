@@ -5,7 +5,7 @@
 .. moduleauthor:: Josef Nevrly <josef.nevrly@gmail.com>
 """
 from functools import reduce
-from typing import Any, NamedTuple
+from typing import Any
 from enum import Enum
 from collections import namedtuple
 import operator
