@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "onacol"
-version = "0.3.3"
+version = "0.3.4"
 description = "Oh No! Another Configuration Library"
 authors = ["Josef Nevrly"]
 license = "MIT license"
 readme = "README.rst"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.6"
 Cerberus = "^1.3.4"
 "ruamel.yaml" = "^0.17.10"
 cascadict = "^0.8.5"
