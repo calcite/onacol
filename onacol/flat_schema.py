@@ -8,8 +8,10 @@ from functools import reduce
 from typing import Any
 from enum import Enum
 from collections import namedtuple
+from collections import abc
 import operator
 import json
+import ast
 
 from cerberus import Validator  # type: ignore
 
@@ -84,6 +86,32 @@ class FlatSchemaHandler:
 
         return value
 
+    def _mapping_value_conversion(self, path, value):
+        if isinstance(value, abc.Mapping):
+            return value
+
+        if not isinstance(value, str):
+            raise InvalidValueError(
+                f"Only values of type mapping expected for {path}")
+
+        # Prefer JSON first, but allow Python string literals often used in
+        # environment variables (e.g. "{'a': 1}").
+        parsers = (
+            lambda x: json.loads(x),
+            lambda x: ast.literal_eval(x),
+        )
+        for parser in parsers:
+            try:
+                converted_value = parser(value)
+            except (json.JSONDecodeError, ValueError, SyntaxError):
+                continue
+
+            if isinstance(converted_value, abc.Mapping):
+                return converted_value
+
+        raise InvalidValueError(
+            f"Only values of type mapping expected for {path}")
+
     def _set_mapped_value(self, config, mapping, path, value):
         mapped_path = self._get_mapped_path(mapping, path)
         metadata = self._flat_schema[mapped_path]
@@ -117,11 +145,14 @@ class FlatSchemaHandler:
                             # One more conversion to bool to prevent
                             # JSON injection
                             converted_value = bool(json.loads(value.lower()))
+                        elif issubclass(val_type, abc.Mapping):
+                            converted_value = self._mapping_value_conversion(
+                                path, value)
                         # End of exceptions
                         else:
                             converted_value = val_type(value)
                         break
-                    except ValueError:
+                    except (ValueError, TypeError):
                         pass
                 else:
                     converted_value = self._single_value_conversion(value)
@@ -192,4 +223,3 @@ class FlatSchemaHandler:
             return True
         except UnknownConfigError:
             return False
-

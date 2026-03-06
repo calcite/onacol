@@ -12,7 +12,13 @@ from ruamel.yaml import YAML
 from onacol import ConfigManager, ConfigValidationError
 from onacol.config_file import ConfigFileHandler, ConfigFileException
 from onacol.config_schema import SchemaException
-from onacol.flat_schema import UnknownConfigError, InvalidValueError
+from onacol.flat_schema import (
+    UnknownConfigError,
+    InvalidValueError,
+    FlatSchemaHandler,
+    FlatSchemaMetadata,
+    FlatValueType,
+)
 
 
 TESTS_DIR = Path(__file__).parent
@@ -329,6 +335,32 @@ class TestConfigManager(unittest.TestCase):
             val, self._cm.config["bottom_sensor"]["preactivation_timeout"]
         )
 
+
+class TestFlatSchemaHandler(unittest.TestCase):
+
+    def test_mapping_env_var_config(self):
+        TEST_VAL = "{'x': 1, 'y': 'abc'}"
+        config = {"some_section": {"mapping_value": {}}}
+        fsh = FlatSchemaHandler(
+            {
+                ("some_section", "mapping_value"): FlatSchemaMetadata(
+                    FlatValueType.VALUE,
+                    "dict",
+                )
+            },
+            env_var_prefix="ONAC",
+        )
+
+        fsh.set_config_from_env_var(
+            config,
+            "ONAC_SOME_SECTION__MAPPING_VALUE",
+            TEST_VAL,
+        )
+
+        self.assertDictEqual(
+            config["some_section"]["mapping_value"],
+            {"x": 1, "y": "abc"},
+        )
 
 
 
